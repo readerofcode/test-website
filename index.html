@@ -211,7 +211,7 @@
 
   <!-- PowerPoint Slide Card -->
   <div class="deck-container">
-    <form id="https://formspree.io/f/mqpkavow">
+    <form id="slideSurveyForm" action="https://formspree.io/f/YOUR_FORM_ID_HERE" method="POST">
 
       <!-- Slide 1 -->
       <div class="slide active" data-slide="1">
@@ -294,93 +294,116 @@
   </div>
 
   <script>
-    const slides = document.querySelectorAll('.slide');
-    const totalQuestions = slides.length - 1; // Exclude completion slide
-    let currentSlide = 1;
+  const form = document.getElementById('slideSurveyForm');
+  const slides = document.querySelectorAll('.slide');
+  const totalQuestions = slides.length - 1; // Exclude completion slide
+  let currentSlide = 1;
 
-    const prevBtn = document.getElementById('prevBtn');
-    const nextBtn = document.getElementById('nextBtn');
-    const controls = document.getElementById('controls');
-    const progressBar = document.getElementById('progressBar');
+  const prevBtn = document.getElementById('prevBtn');
+  const nextBtn = document.getElementById('nextBtn');
+  const controls = document.getElementById('controls');
+  const progressBar = document.getElementById('progressBar');
 
-    function updateSlide() {
-      slides.forEach((slide) => {
-        const slideIndex = parseInt(slide.dataset.slide);
-        slide.classList.toggle('active', slideIndex === currentSlide);
-      });
+  function updateSlide() {
+    slides.forEach((slide) => {
+      const slideIndex = parseInt(slide.dataset.slide);
+      slide.classList.toggle('active', slideIndex === currentSlide);
+    });
 
-      // Update Progress Bar
-      const progressPercent = Math.min((currentSlide / totalQuestions) * 100, 100);
-      progressBar.style.width = `${progressPercent}%`;
+    const progressPercent = Math.min((currentSlide / totalQuestions) * 100, 100);
+    progressBar.style.width = `${progressPercent}%`;
 
-      // Update Back Button Visibility
-      prevBtn.style.visibility = currentSlide === 1 ? 'hidden' : 'visible';
+    prevBtn.style.visibility = currentSlide === 1 ? 'hidden' : 'visible';
 
-      // Update Next / Submit Button Text
-      if (currentSlide === totalQuestions) {
-        nextBtn.textContent = 'Submit Survey ✓';
-        nextBtn.classList.add('btn-submit');
-      } else if (currentSlide > totalQuestions) {
-        // Form submitted and on completion slide
-        controls.style.display = 'none';
-        const name = document.getElementById('nameInput').value;
-        if (name) {
-          document.getElementById('finalSummaryText').textContent = `Thanks, ${name}! Your responses have been saved.`;
-        }
-      } else {
-        nextBtn.textContent = 'Next →';
-        nextBtn.classList.remove('btn-submit');
-      }
+    if (currentSlide === totalQuestions) {
+      nextBtn.textContent = 'Submit Survey ✓';
+      nextBtn.classList.add('btn-submit');
+    } else if (currentSlide > totalQuestions) {
+      // Completed
+      controls.style.display = 'none';
+    } else {
+      nextBtn.textContent = 'Next →';
+      nextBtn.classList.remove('btn-submit');
     }
+  }
 
-    function validateCurrentSlide() {
-      const activeSlide = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
-      const inputs = activeSlide.querySelectorAll('input[required], select[required]');
-      
-      for (let input of inputs) {
-        if (input.type === 'radio') {
-          const name = input.name;
-          const checked = activeSlide.querySelector(`input[name="${name}"]:checked`);
-          if (!checked) {
-            alert('Please select an option before continuing.');
-            return false;
-          }
-        } else if (!input.value.trim()) {
-          input.focus();
-          alert('Please answer the question to proceed.');
+  function validateCurrentSlide() {
+    const activeSlide = document.querySelector(`.slide[data-slide="${currentSlide}"]`);
+    const inputs = activeSlide.querySelectorAll('input[required], select[required]');
+    
+    for (let input of inputs) {
+      if (input.type === 'radio') {
+        const name = input.name;
+        const checked = activeSlide.querySelector(`input[name="${name}"]:checked`);
+        if (!checked) {
+          alert('Please select an option before continuing.');
           return false;
         }
+      } else if (!input.value.trim()) {
+        input.focus();
+        alert('Please answer the question to proceed.');
+        return false;
       }
-      return true;
     }
+    return true;
+  }
 
-    nextBtn.addEventListener('click', () => {
-      if (validateCurrentSlide()) {
+  async function submitToFormspree() {
+    nextBtn.textContent = 'Sending...';
+    nextBtn.disabled = true;
+
+    const formData = new FormData(form);
+
+    try {
+      const response = await fetch(form.action, {
+        method: 'POST',
+        body: formData,
+        headers: {
+          'Accept': 'application/json'
+        }
+      });
+
+      if (response.ok) {
+        // Success! Go to completion slide
         currentSlide++;
         updateSlide();
-      }
-    });
-
-    prevBtn.addEventListener('click', () => {
-      if (currentSlide > 1) {
-        currentSlide--;
-        updateSlide();
-      }
-    });
-
-    // Press Enter to go next
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Enter' && currentSlide <= totalQuestions) {
-        // Don't auto-advance when typing in textarea
-        if (document.activeElement.tagName.toLowerCase() !== 'textarea') {
-          e.preventDefault();
-          nextBtn.click();
+        const name = document.getElementById('nameInput').value;
+        if (name) {
+          document.getElementById('finalSummaryText').textContent = `Thanks, ${name}! Your responses have been sent to our email inbox.`;
         }
+      } else {
+        alert('There was a problem submitting your survey. Please make sure your Formspree URL is correct!');
+        nextBtn.textContent = 'Submit Survey ✓';
+        nextBtn.disabled = false;
       }
-    });
+    } catch (error) {
+      alert('Network error. Please check your internet connection.');
+      nextBtn.textContent = 'Submit Survey ✓';
+      nextBtn.disabled = false;
+    }
+  }
 
-    // Initialize
-    updateSlide();
-  </script>
+  nextBtn.addEventListener('click', () => {
+    if (!validateCurrentSlide()) return;
+
+    // If we're on the last question slide, submit the form to Formspree
+    if (currentSlide === totalQuestions) {
+      submitToFormspree();
+    } else {
+      currentSlide++;
+      updateSlide();
+    }
+  });
+
+  prevBtn.addEventListener('click', () => {
+    if (currentSlide > 1) {
+      currentSlide--;
+      updateSlide();
+    }
+  });
+
+  // Initialize
+  updateSlide();
+</script>
 </body>
 </html>
