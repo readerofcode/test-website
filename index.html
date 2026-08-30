@@ -1,34 +1,201 @@
 <!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>My First Website</title>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Quick Feedback Survey</title>
   <style>
     body {
-      font-family: Arial, sans-serif;
-      text-align: center;
-      padding: 50px;
-      background-color: #f4f7f6;
+      font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+      background-color: #f0f4f8;
       color: #333;
+      margin: 0;
+      padding: 30px 15px;
     }
-    h1 {
-      color: #2b5876;
-    }
-    .card {
-      background: white;
-      max-width: 500px;
+
+    .container {
+      max-width: 600px;
       margin: 0 auto;
-      padding: 25px;
+      background: #ffffff;
+      padding: 35px 30px;
       border-radius: 12px;
-      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+      box-shadow: 0 4px 15px rgba(0, 0, 0, 0.08);
+    }
+
+    h1 {
+      margin-top: 0;
+      color: #1e3a8a;
+      text-align: center;
+    }
+
+    p.subtitle {
+      text-align: center;
+      color: #64748b;
+      margin-bottom: 30px;
+    }
+
+    .question-block {
+      margin-bottom: 25px;
+      padding-bottom: 15px;
+      border-bottom: 1px solid #e2e8f0;
+    }
+
+    label.question-title {
+      font-weight: 600;
+      display: block;
+      margin-bottom: 10px;
+      color: #1e293b;
+    }
+
+    /* Text & Dropdown Inputs */
+    input[type="text"],
+    input[type="email"],
+    select,
+    textarea {
+      width: 100%;
+      padding: 10px;
+      border: 1.5px solid #cbd5e1;
+      border-radius: 6px;
+      box-sizing: border-box;
+      font-size: 15px;
+    }
+
+    input:focus, select:focus, textarea:focus {
+      outline: none;
+      border-color: #3b82f6;
+    }
+
+    /* Radio & Checkbox options */
+    .option-label {
+      display: block;
+      margin-bottom: 8px;
+      cursor: pointer;
+      font-size: 15px;
+    }
+
+    /* Submit Button */
+    button {
+      background-color: #2563eb;
+      color: white;
+      border: none;
+      width: 100%;
+      padding: 14px;
+      font-size: 16px;
+      font-weight: 600;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: background-color 0.2s ease;
+    }
+
+    button:hover {
+      background-color: #1d4ed8;
+    }
+
+    /* Success / Result Box */
+    #thankYouBox {
+      display: none;
+      text-align: center;
+      padding: 20px;
+      background: #ecfdf5;
+      border: 1px solid #10b981;
+      border-radius: 8px;
+      color: #065f46;
+      margin-top: 20px;
     }
   </style>
 </head>
 <body>
-  <div class="card">
-    <h1>Hello, World! 👋</h1>
-    <p>Welcome to my brand-new website hosted on GitHub Pages.</p>
+
+  <div class="container">
+    <h1>📋 Community Survey</h1>
+    <p class="subtitle">Please share your thoughts with us!</p>
+
+    <!-- Survey Form -->
+    <form id="surveyForm">
+      
+      <!-- Question 1: Text Input -->
+      <div class="question-block">
+        <label class="question-title" for="fullName">1. What is your name?</label>
+        <input type="text" id="fullName" name="fullName" placeholder="e.g., Jane Doe" required />
+      </div>
+
+      <!-- Question 2: Radio Buttons (Select one) -->
+      <div class="question-block">
+        <label class="question-title">2. How did you hear about this project?</label>
+        <label class="option-label">
+          <input type="radio" name="source" value="Social Media" required /> Social Media
+        </label>
+        <label class="option-label">
+          <input type="radio" name="source" value="Friend or Colleague" /> Friend or Colleague
+        </label>
+        <label class="option-label">
+          <input type="radio" name="source" value="Search Engine" /> Search Engine / Google
+        </label>
+        <label class="option-label">
+          <input type="radio" name="source" value="Other" /> Other
+        </label>
+      </div>
+
+      <!-- Question 3: Dropdown Rating -->
+      <div class="question-block">
+        <label class="question-title" for="rating">3. How would you rate your overall experience?</label>
+        <select id="rating" name="rating" required>
+          <option value="">-- Select a rating --</option>
+          <option value="⭐⭐⭐⭐⭐ Excellent">⭐⭐⭐⭐⭐ Excellent</option>
+          <option value="⭐⭐⭐⭐ Good">⭐⭐⭐⭐ Good</option>
+          <option value="⭐⭐⭐ Neutral">⭐⭐⭐ Neutral</option>
+          <option value="⭐⭐ Poor">⭐⭐ Poor</option>
+        </select>
+      </div>
+
+      <!-- Question 4: Checkboxes (Select multiple) -->
+      <div class="question-block">
+        <label class="question-title">4. What features interest you most?</label>
+        <label class="option-label">
+          <input type="checkbox" name="interests" value="Tutorials" /> Free Tutorials
+        </label>
+        <label class="option-label">
+          <input type="checkbox" name="interests" value="Templates" /> Code Templates
+        </label>
+        <label class="option-label">
+          <input type="checkbox" name="interests" value="Community" /> Community Discussions
+        </label>
+      </div>
+
+      <!-- Question 5: Textarea (Open-ended comments) -->
+      <div class="question-block">
+        <label class="question-title" for="comments">5. Any extra comments or feedback?</label>
+        <textarea id="comments" name="comments" rows="4" placeholder="Write your feedback here..."></textarea>
+      </div>
+
+      <!-- Submit Button -->
+      <button type="submit">Submit Survey</button>
+    </form>
+
+    <!-- Thank you message container -->
+    <div id="thankYouBox">
+      <h2>🎉 Thank you for participating!</h2>
+      <p id="submissionSummary"></p>
+    </div>
   </div>
+
+  <script>
+    // Handle form submission without reloading the page
+    document.getElementById('surveyForm').addEventListener('submit', function(e) {
+      e.preventDefault(); // Prevents page reload
+      
+      const name = document.getElementById('fullName').value;
+      const rating = document.getElementById('rating').value;
+      
+      // Hide the form
+      document.getElementById('surveyForm').style.display = 'none';
+      
+      // Show the thank you message
+      const thankYouBox = document.getElementById('thankYouBox');
+      const summaryText = document.getElementById('submissionSummary');
+      summaryText.textContent = `Thanks, ${name}! Your rating (${rating}) and feedback have been recorded.`;
+      thankYouBox.style.display = 'block';
+    });
+  </script>
 </body>
 </html>
